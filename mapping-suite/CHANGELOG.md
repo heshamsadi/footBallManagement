@@ -1,5 +1,8 @@
 # 📜 Changelog
 
+2025-06-23 – [agent] – Right-click marker modal, Places settings, search bar – changes/2025-06-23_places-rightclick-settings.md
+2025-06-23 – [agent] – Added pill to toggle Google POI layer – changes/2025-06-23_poi-toggle.md
+2025-06-23 – [agent] – Disabled native POI layer; check-boxes now exclusive – changes/2025-06-23_hide-native-pois.md
 2025-06-23 – [agent] – Turned workspace tabs into layer filter – PlaceFilterTabs.tsx
 2025-06-23 – [agent] – Added low-quota Google Places overlay – changes/2025-06-23_places-overlay.md
 2025-06-23 – [agent] – UI CLEANUP: Remove stats panel overlay from map interface – changes/2025-06-23_remove-stats-panel.md

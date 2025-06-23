@@ -2,6 +2,7 @@ import DashboardLayout from '@/layouts/DashboardLayout';
 import DataTable from '@/components/DataTable';
 import MapWrapperAdmin from '@/components/MapWrapperAdmin';
 import PlaceFilterTabs from '@/features/backoffice/components/PlaceFilterTabs';
+import PlaceSearchBar from '@/features/backoffice/components/PlaceSearchBar';
 
 export default function Home() {
   return (
@@ -19,6 +20,11 @@ export default function Home() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Place Search Bar */}
+      <div className="mb-6">
+        <PlaceSearchBar />
       </div>
 
       {/* Data Table */}

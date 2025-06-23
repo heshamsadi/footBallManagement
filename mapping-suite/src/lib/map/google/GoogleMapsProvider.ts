@@ -29,7 +29,14 @@ export default class GoogleMapsProvider implements MapProvider {
 
       await this.loader.load();
 
-      const common = { center, zoom, mapTypeId: google.maps.MapTypeId.ROADMAP };
+      const common = { 
+        center, 
+        zoom, 
+        mapTypeId: google.maps.MapTypeId.ROADMAP,
+        styles: [
+          { featureType: 'poi', elementType: 'all', stylers: [{ visibility: 'off' }] }
+        ]
+      };
 
       const locked = {
         gestureHandling: 'none',

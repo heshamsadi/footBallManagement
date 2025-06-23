@@ -33,19 +33,30 @@ interface PlacesLayerState {
   stadium: boolean;
 }
 
+interface PlacesConfig {
+  maxResults: number;
+  minZoom: number;
+}
+
 interface MapState extends MapConfig {
   icons: MapIcon[];
   distances: DistanceRecord[];
   markers: Marker[];
+  tempMarker: { lat: number; lng: number } | null;
   layers: LayerState;
   placesLayers: PlacesLayerState;
+  placesConfig: PlacesConfig;
+  showNativePoi: boolean;
   isLocationInitialized: boolean;
   setIcons: (icons: MapIcon[]) => void;
   addDistance: (record: DistanceRecord) => void;
   addMarker: (marker: Marker) => void;
   removeMarker: (id: string) => void;
+  setTempMarker: (position: { lat: number; lng: number } | null) => void;
   toggleLayer: (key: keyof LayerState) => void;
   togglePlacesLayer: (key: keyof PlacesLayerState) => void;
+  toggleNativePoi: () => void;
+  setPlacesConfig: (config: Partial<PlacesConfig>) => void;
   setCenter: (center: { lat: number; lng: number }) => void;
   setZoom: (zoom: number) => void;
   setProvider: (provider: 'google' | 'mapbox') => void;
@@ -62,8 +73,11 @@ const useMapStore = create<MapState>()(
       distances: [],
       markers:
         typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('markers') || '[]') : [],
+      tempMarker: null,
       layers: { terrain: true, hotel: true, airport: true },
       placesLayers: { hotel: false, restaurant: false, stadium: false },
+      placesConfig: { maxResults: 20, minZoom: 14 },
+      showNativePoi: false,
       isLocationInitialized: false,
       setIcons: (icons) => set({ icons }),
       addDistance: (record) => set((state) => ({ distances: [record, ...state.distances] })),
@@ -83,10 +97,15 @@ const useMapStore = create<MapState>()(
           }
           return { markers: newMarkers };
         }),
+      setTempMarker: (position) => set({ tempMarker: position }),
       toggleLayer: (key) =>
         set((state) => ({ layers: { ...state.layers, [key]: !state.layers[key] } })),
       togglePlacesLayer: (key) =>
         set((state) => ({ placesLayers: { ...state.placesLayers, [key]: !state.placesLayers[key] } })),
+      toggleNativePoi: () =>
+        set((state) => ({ showNativePoi: !state.showNativePoi })),
+      setPlacesConfig: (config) =>
+        set((state) => ({ placesConfig: { ...state.placesConfig, ...config } })),
       setCenter: (center) => set({ center }),
       setZoom: (zoom) => set({ zoom }),
       setProvider: (provider) => {

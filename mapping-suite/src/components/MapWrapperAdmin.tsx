@@ -10,9 +10,9 @@ export default function MapWrapperAdmin() {
   const didInit = useRef(false);
   const currentProvider = useRef<string>('');
   const markersRef = useRef<google.maps.Marker[]>([]);
-  const placesMarkersRef = useRef<Map<string, google.maps.Marker[]>>(new Map());
-  const placesServiceRef = useRef<google.maps.places.PlacesService | null>(null);
+  const placesMarkersRef = useRef<Map<string, google.maps.Marker[]>>(new Map());  const placesServiceRef = useRef<google.maps.places.PlacesService | null>(null);
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
+  const tempMarkerRef = useRef<google.maps.Marker | null>(null);
   const lastRequestTimestamp = useRef<Map<string, number>>(new Map());
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,8 +20,10 @@ export default function MapWrapperAdmin() {
     lat: 0,
     lng: 0,
   });
+  const { center, zoom, provider, markers, tempMarker, placesLayers, showNativePoi, initializeLocation } = useMapStore();
 
-  const { center, zoom, provider, markers, placesLayers, initializeLocation } = useMapStore();
+  // POI style for hiding/showing native POIs
+  const HIDE_POI_STYLE = [{ featureType: 'poi', elementType: 'all', stylers: [{ visibility: 'off' }] }];
 
   // Type mapping for Google Places
   const placeTypeMapping = {
@@ -29,11 +31,12 @@ export default function MapWrapperAdmin() {
     restaurant: 'restaurant', 
     stadium: 'stadium'
   } as const;
-
   // Handle Places search based on current bounds and zoom
   const handlePlacesSearch = (googleMap: google.maps.Map) => {
+    const { placesConfig } = useMapStore.getState();
     const currentZoom = googleMap.getZoom();
-    if (!currentZoom || currentZoom < 14) {
+    
+    if (!currentZoom || currentZoom < placesConfig.minZoom) {
       // Hide all Places markers if zoom is too low
       placesMarkersRef.current.forEach((markers) => {
         markers.forEach(marker => marker.setMap(null));
@@ -48,7 +51,7 @@ export default function MapWrapperAdmin() {
 
     // Process each active Places layer
     Object.entries(placesLayers).forEach(([category, isActive]) => {
-      const cacheKey = `${boundsStr}:${category}`;
+      const cacheKey = `${boundsStr}:${category}:${placesConfig.minZoom}`;
       
       if (!isActive) {
         // Hide markers for inactive layers
@@ -80,9 +83,12 @@ export default function MapWrapperAdmin() {
           const oldMarkers = placesMarkersRef.current.get(category) || [];
           oldMarkers.forEach(marker => marker.setMap(null));
 
+          // Limit results to maxResults
+          const limitedResults = results.slice(0, placesConfig.maxResults);
+          
           // Create new markers
           const newMarkers: google.maps.Marker[] = [];
-          results.forEach((place) => {
+          limitedResults.forEach((place) => {
             if (place.geometry?.location) {              const marker = new google.maps.Marker({
                 position: place.geometry.location,
                 map: googleMap,
@@ -98,13 +104,12 @@ export default function MapWrapperAdmin() {
                 if (place.place_id && placesServiceRef.current && infoWindowRef.current) {
                   placesServiceRef.current.getDetails(
                     { placeId: place.place_id },
-                    (details, detailStatus) => {
-                      if (detailStatus === google.maps.places.PlacesServiceStatus.OK && details) {
+                    (details, detailStatus) => {                      if (detailStatus === google.maps.places.PlacesServiceStatus.OK && details) {
                         const content = `
-                          <div style="max-width: 200px;">
-                            <strong>${details.name || 'Unknown'}</strong><br>
-                            ${details.formatted_address || ''}<br>
-                            ${details.rating ? `⭐ ${details.rating}` : ''}
+                          <div style="color:#222;font-family:Poppins,sans-serif;font-size:14px;max-width:200px;">
+                            <strong style="color:#111;">${details.name || 'Unknown'}</strong><br>
+                            <span style="color:#666;">${details.formatted_address || ''}</span><br>
+                            ${details.rating ? `<span style="color:#333;">⭐ ${details.rating}</span>` : ''}
                           </div>
                         `;
                         infoWindowRef.current!.setContent(content);
@@ -152,7 +157,7 @@ export default function MapWrapperAdmin() {
           if (googleMap) {
             // Initialize Places service and InfoWindow
             placesServiceRef.current = new google.maps.places.PlacesService(googleMap);
-            infoWindowRef.current = new google.maps.InfoWindow();            // Add click handler with placeId guard
+            infoWindowRef.current = new google.maps.InfoWindow();            // Add click handler with placeId guard (NO marker modal on left-click)
             google.maps.event.addListener(
               googleMap,
               'click',
@@ -160,6 +165,15 @@ export default function MapWrapperAdmin() {
                 // If click is on a place, let Google handle it
                 if ((event as any).placeId) return;
                 
+                // Left-click no longer opens marker modal - only right-click does
+              }
+            );
+
+            // Add right-click (contextmenu) handler for marker modal
+            google.maps.event.addListener(
+              googleMap,
+              'contextmenu',
+              (event: google.maps.MapMouseEvent) => {
                 if (event.latLng) {
                   setClickPosition({
                     lat: event.latLng.lat(),
@@ -190,13 +204,17 @@ export default function MapWrapperAdmin() {
     initMap();    return () => {
       // Clear markers
       markersRef.current.forEach((marker) => marker.setMap(null));
-      markersRef.current = [];
-
-      // Clear Places markers
+      markersRef.current = [];      // Clear Places markers
       placesMarkersRef.current.forEach((markers) => {
         markers.forEach(marker => marker.setMap(null));
       });
       placesMarkersRef.current.clear();
+
+      // Clear temp marker
+      if (tempMarkerRef.current) {
+        tempMarkerRef.current.setMap(null);
+        tempMarkerRef.current = null;
+      }
 
       // Close InfoWindow
       if (infoWindowRef.current) {
@@ -280,6 +298,38 @@ export default function MapWrapperAdmin() {
     });
   }, [markers]);
 
+  // Handle temp marker changes
+  useEffect(() => {
+    if (!didInit.current) return;
+
+    const currentMapProvider = mapProviderManager.getCurrentProvider();
+    if (!currentMapProvider || !('map' in currentMapProvider)) return;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const googleMap = (currentMapProvider as any).map;
+    if (!googleMap) return;
+
+    // Clear existing temp marker
+    if (tempMarkerRef.current) {
+      tempMarkerRef.current.setMap(null);
+      tempMarkerRef.current = null;
+    }
+
+    // Add temp marker if position is set
+    if (tempMarker) {
+      tempMarkerRef.current = new google.maps.Marker({
+        position: tempMarker,
+        map: googleMap,
+        icon: {
+          url: '/icons/search_tmp.svg',
+          scaledSize: new google.maps.Size(24, 24),
+        },
+        title: 'Search Result',
+        animation: google.maps.Animation.DROP,
+      });
+    }
+  }, [tempMarker]);
+
   // Handle Places layers changes
   useEffect(() => {
     if (!didInit.current) return;
@@ -292,8 +342,24 @@ export default function MapWrapperAdmin() {
     if (!googleMap) return;
 
     // Trigger Places search with current state
-    handlePlacesSearch(googleMap);
-  }, [placesLayers]);
+    handlePlacesSearch(googleMap);  }, [placesLayers]);
+
+  // Handle native POI toggle
+  useEffect(() => {
+    if (!didInit.current) return;
+
+    const currentMapProvider = mapProviderManager.getCurrentProvider();
+    if (!currentMapProvider || !('map' in currentMapProvider)) return;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const googleMap = (currentMapProvider as any).map;
+    if (!googleMap) return;
+
+    // Set map styles based on showNativePoi state
+    googleMap.setOptions({ 
+      styles: showNativePoi ? [] : HIDE_POI_STYLE 
+    });
+  }, [showNativePoi, HIDE_POI_STYLE]);
 
   return (
     <>

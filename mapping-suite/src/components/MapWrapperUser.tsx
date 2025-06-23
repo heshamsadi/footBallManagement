@@ -9,8 +9,11 @@ export default function MapWrapperUser() {
   const didInit = useRef(false);
   const currentProvider = useRef<string>('');
   const markersRef = useRef<google.maps.Marker[]>([]);
+  const { center, zoom, provider, layers, markers, showNativePoi, initializeLocation } = useMapStore();
 
-  const { center, zoom, provider, layers, markers, initializeLocation } = useMapStore();
+  // POI style for hiding/showing native POIs
+  const HIDE_POI_STYLE = [{ featureType: 'poi', elementType: 'all', stylers: [{ visibility: 'off' }] }];
+
   // Initial map setup
   useEffect(() => {
     if (!mapRef.current || didInit.current) {
@@ -136,8 +139,24 @@ export default function MapWrapperUser() {
 
         markersRef.current.push(marker);
       }
+    });  }, [markers, layers]);
+
+  // Handle native POI toggle
+  useEffect(() => {
+    if (!didInit.current) return;
+
+    const currentMapProvider = mapProviderManager.getCurrentProvider();
+    if (!currentMapProvider || !('map' in currentMapProvider)) return;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const googleMap = (currentMapProvider as any).map;
+    if (!googleMap) return;
+
+    // Set map styles based on showNativePoi state
+    googleMap.setOptions({ 
+      styles: showNativePoi ? [] : HIDE_POI_STYLE 
     });
-  }, [markers, layers]);
+  }, [showNativePoi, HIDE_POI_STYLE]);
 
   return (
     <div ref={mapRef} className="h-full w-full rounded-xl shadow" data-testid="map-container-user" />
