@@ -7,16 +7,24 @@
 - **Google Places InfoWindow** styling improved with black text
 - **Places persistence** - markers persist while panning/zooming, only refresh when bounds hash changes
 - **Temp marker system** for search results with auto-clear after 30 seconds
+- **FIXED: Input text readability** - All inputs now have black text instead of grey
+- **FIXED: Left-click marker placement** - Only right-click opens marker modal
 
 ## Tree Structure
 ```
 src/
+  app/globals.css                                      # [MODIFIED] Added global input styling rules
   store/map.ts                                          # [MODIFIED] Added placesConfig, tempMarker state
-  components/MapWrapperAdmin.tsx                        # [MODIFIED] Right-click modal, temp markers, improved Places logic
+  components/
+    MapWrapperAdmin.tsx                                 # [MODIFIED] Right-click only, temp markers, config integration
+    Topbar.tsx                                          # [MODIFIED] Fixed search input text color
   features/backoffice/components/
     PlaceFilterTabs.tsx                                 # [MODIFIED] Added settings gear icon and modal
     PlacesSettingsModal.tsx                             # [NEW] Settings modal for Places config
     PlaceSearchBar.tsx                                  # [NEW] Global search bar with category filtering
+    DistancePanel.tsx                                   # [MODIFIED] Fixed input text colors
+    PlaceSearch.tsx                                     # [MODIFIED] Fixed input text color
+    MarkerModal.tsx                                     # [MODIFIED] Fixed radio button styling
   app/page.tsx                                          # [MODIFIED] Added PlaceSearchBar component
 public/icons/
   gear.svg                                              # [NEW] Settings gear icon
@@ -431,4 +439,52 @@ export default function PlaceSearchBar({ onPlaceSelected }: PlaceSearchBarProps)
   <circle cx="12" cy="12" r="10" fill="#00FFFF" stroke="#0080FF" stroke-width="2"/>
   <circle cx="12" cy="12" r="3" fill="#FFFFFF"/>
 </svg>
+```
+
+## Bug Fixes Applied
+
+### src/app/globals.css
+```css
+/* Global input styling to ensure readable text */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="search"],
+input[type="url"],
+input[type="tel"],
+select,
+textarea {
+  color: #111827 !important; /* text-gray-900 */
+  background-color: #ffffff !important; /* bg-white */
+}
+
+input[type="text"]::placeholder,
+input[type="email"]::placeholder,
+input[type="password"]::placeholder,
+input[type="number"]::placeholder,
+input[type="search"]::placeholder,
+input[type="url"]::placeholder,
+input[type="tel"]::placeholder,
+textarea::placeholder {
+  color: #6b7280 !important; /* text-gray-500 */
+}
+```
+
+### MapWrapperAdmin.tsx - Right-click Only Event Handler
+```tsx
+// Only add right-click (contextmenu) handler for marker modal
+google.maps.event.addListener(
+  googleMap,
+  'contextmenu',
+  (event: google.maps.MapMouseEvent) => {
+    if (event.latLng) {
+      setClickPosition({
+        lat: event.latLng.lat(),
+        lng: event.latLng.lng(),
+      });
+      setIsModalOpen(true);
+    }
+  }
+);
 ```
