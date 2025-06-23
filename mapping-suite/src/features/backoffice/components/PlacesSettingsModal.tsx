@@ -37,15 +37,14 @@ export default function PlacesSettingsModal({ isOpen, onClose }: PlacesSettingsM
           <div>
             <label htmlFor="maxResults" className="block text-sm font-medium text-gray-700 mb-1">
               Max Results per Category
-            </label>
-            <input
+            </label>            <input
               id="maxResults"
               type="number"
               min="5"
               max="50"
               value={maxResults}
               onChange={(e) => setMaxResults(parseInt(e.target.value, 10))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
             />
             <p className="text-xs text-gray-500 mt-1">Recommended: 10-30</p>
           </div>
@@ -53,15 +52,14 @@ export default function PlacesSettingsModal({ isOpen, onClose }: PlacesSettingsM
           <div>
             <label htmlFor="minZoom" className="block text-sm font-medium text-gray-700 mb-1">
               Minimum Zoom Level
-            </label>
-            <input
+            </label>            <input
               id="minZoom"
               type="number"
               min="10"
               max="18"
               value={minZoom}
               onChange={(e) => setMinZoom(parseInt(e.target.value, 10))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white"
             />
             <p className="text-xs text-gray-500 mt-1">Places appear only when zoomed in past this level</p>
           </div>

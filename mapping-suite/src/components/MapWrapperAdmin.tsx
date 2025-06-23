@@ -157,19 +157,7 @@ export default function MapWrapperAdmin() {
           if (googleMap) {
             // Initialize Places service and InfoWindow
             placesServiceRef.current = new google.maps.places.PlacesService(googleMap);
-            infoWindowRef.current = new google.maps.InfoWindow();            // Add click handler with placeId guard (NO marker modal on left-click)
-            google.maps.event.addListener(
-              googleMap,
-              'click',
-              (event: google.maps.MapMouseEvent) => {
-                // If click is on a place, let Google handle it
-                if ((event as any).placeId) return;
-                
-                // Left-click no longer opens marker modal - only right-click does
-              }
-            );
-
-            // Add right-click (contextmenu) handler for marker modal
+            infoWindowRef.current = new google.maps.InfoWindow();            // Only add right-click (contextmenu) handler for marker modal
             google.maps.event.addListener(
               googleMap,
               'contextmenu',

@@ -80,13 +80,12 @@ export default function PlaceSearch() {
     <div className="mb-4">
       <label htmlFor="place-search" className="block text-sm font-medium text-gray-700 mb-2">
         Search Places
-      </label>
-      <input
+      </label>      <input
         ref={inputRef}
         id="place-search"
         type="text"
         placeholder="Search for a place..."
-        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white placeholder-gray-500"
       />
     </div>
   );

@@ -22,11 +22,10 @@ export default function Topbar() {
       <div className="h-14 flex items-center justify-between px-6">
         {/* Left - Search */}
         <div className="flex items-center space-x-4">
-          <div className="relative">
-            <input
+          <div className="relative">            <input
               type="text"
               placeholder="Global Search by Id"
-              className="w-72 pl-10 pr-4 py-2 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent placeholder-gray-400"
+              className="w-72 pl-10 pr-4 py-2 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent placeholder-gray-400 text-gray-900 bg-white"
             />
             <svg
               className="absolute left-3 top-2.5 w-5 h-5 text-gray-400"

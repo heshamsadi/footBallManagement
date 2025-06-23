@@ -88,11 +88,10 @@ export default function PlaceSearchBar({ onPlaceSelected }: PlaceSearchBarProps)
   return (
     <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200">
       <div className="flex gap-2 mb-3">
-        {/* Category Selector */}
-        <select
+        {/* Category Selector */}        <select
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+          className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
         >
           {PLACE_CATEGORIES.map((category) => (
             <option key={category.key} value={category.key}>
@@ -102,15 +101,14 @@ export default function PlaceSearchBar({ onPlaceSelected }: PlaceSearchBarProps)
         </select>
 
         {/* Search Input */}
-        <div className="flex-1 relative">
-          <input
+        <div className="flex-1 relative">          <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Search for places..."
-            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white placeholder-gray-500"
           />
           {isSearching && (
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2">

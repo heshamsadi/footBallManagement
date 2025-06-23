@@ -80,7 +80,7 @@ export default function MarkerModal({ isOpen, onClose, lat, lng }: MarkerModalPr
                   value={layer}
                   checked={selectedLayer === layer}
                   onChange={(e) => setSelectedLayer(e.target.value as typeof layer)}
-                  className="mr-2"
+                  className="mr-2 text-blue-600 focus:ring-blue-500"
                 />
                 <span className="text-sm capitalize">{layer}</span>
               </label>
