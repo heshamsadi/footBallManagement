@@ -1,5 +1,6 @@
 # 📜 Changelog
 
+2025-06-23 – [agent] – Turned workspace tabs into layer filter – PlaceFilterTabs.tsx
 2025-06-23 – [agent] – Added low-quota Google Places overlay – changes/2025-06-23_places-overlay.md
 2025-06-23 – [agent] – UI CLEANUP: Remove stats panel overlay from map interface – changes/2025-06-23_remove-stats-panel.md
 2025-01-23 – [agent] – FEATURE: Map geolocation default location with user's current position – changes/2025-01-23_map-geolocation-default.md

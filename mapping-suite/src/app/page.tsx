@@ -1,8 +1,7 @@
 import DashboardLayout from '@/layouts/DashboardLayout';
-import WorkspaceTabs from '@/components/WorkspaceTabs';
 import DataTable from '@/components/DataTable';
 import MapWrapperAdmin from '@/components/MapWrapperAdmin';
-import PlacesLayerCheckboxes from '@/features/backoffice/components/PlacesLayerCheckboxes';
+import PlaceFilterTabs from '@/features/backoffice/components/PlaceFilterTabs';
 
 export default function Home() {
   return (
@@ -14,13 +13,9 @@ export default function Home() {
             <div className="h-[600px] w-full rounded-lg overflow-hidden">
               <MapWrapperAdmin />
             </div>
-            {/* Places Layer Controls - Top Right */}
-            <div className="absolute top-4 right-4 z-10">
-              <PlacesLayerCheckboxes />
-            </div>
-            {/* Workspace Tabs at Bottom of Map */}
+            {/* Place Filter Tabs at Bottom of Map */}
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10">
-              <WorkspaceTabs />
+              <PlaceFilterTabs />
             </div>
           </div>
         </div>
